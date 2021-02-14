@@ -14,7 +14,7 @@ delta_t = 100
 
 # adsorbent
 d = 0.004
-p_nasypnoe = 700
+p_nasypnoe = 800
 por = 0.682
 C_ads = 920
 Lya = 0.0244
