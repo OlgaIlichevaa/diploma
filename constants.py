@@ -2,8 +2,8 @@ from math import pi, ceil
 
 
 # todo: Add interface and initialize constants
-path = '/home/darklord/PycharmProjects/diploma/graph/'
-
+path = "C:\\Users\\olgai\\PycharmProjects\\diploma\\graph"
+# /home/darklord/PycharmProjects/diploma/graph/
 # adsorber
 h = 2
 d_sloy = 1
@@ -14,7 +14,7 @@ delta_t = 100
 
 # adsorbent
 d = 0.004
-p_nasypnoe = 800
+p_nasypnoe = 700
 por = 0.682
 C_ads = 920
 Lya = 0.0244
