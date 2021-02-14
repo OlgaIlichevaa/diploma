@@ -1,0 +1,14 @@
+*.iml
+.idea
+_pycache_/
+.ipynb_checkpoints
+
+*.png
+
+# Ignore venv
+venv/*
+/venv/
+
+# Ignore graph
+/graph
+/graph/*
