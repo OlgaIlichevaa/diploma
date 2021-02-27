@@ -41,47 +41,30 @@ class TModel:
         self.v = self.G_obyem / self.s
         self.v_reg = self.G_reg / self.s
 
-
-    # adsorption
-
     def go(self):
-        # arho_voz = self.p / (287.4 * self.t1)
-        # avyaz_voz = 0.00001717 * (self.t1 / 273) ** 0.683
-        # aLya_voz = 0.0244 * (self.t1 / 273) ** 0.82
-        # aCp_voz = 1000
-        # avyaz_kin = avyaz_voz / arho_voz
         output = [[Table() for layer in range(self.n)] for dt_step in range(int(total_time / delta_t))]
-        # plot_data(output, layer=5, field='VlagosoderganieOfVozd', title='layer=5_VlagosoderganieOfVozd.png')
-        # todo: output[0][0].TemperatureOfVozd and output[0][0].VlagosoderganieOfVozd initialized two times
 
-        # start conditions adsorption
+        # Adsorption
+
+        # start conditions
         for layer in range(self.n):
             output[0][layer].TemperatureOfAds = self.T0
-            output[0][layer].TemperatureOfVozd = self.T0
             output[0][layer].VlagosoderganieOfAds = self.ads_begin_vlaga
-            output[0][layer].VlagosoderganieOfVozd = self.vozd_begin_vlaga
-        # plot_data(output, layer=5, field='VlagosoderganieOfVozd', title='layer=5_VlagosoderganieOfVozd.png')
-
-        # boundary conditions adsorption
+            output[0][layer].TemperatureOfVozd = self.T0
+            output[0][layer].VlagosoderganieOfVozd = self.ads_begin_vlaga
+        # boundary conditions
         for dt_step in range(1, int(total_time / delta_t)):
-            output[dt_step][0].TemperatureOfVozd = self.Tvoz_reg
+            output[dt_step][0].TemperatureOfVozd = self.T0
             output[dt_step][0].VlagosoderganieOfVozd = self.vozd_begin_vlaga
 
 
         for dt_step in range(int(total_time / delta_t) - 1):
-            # for layer in range(self.n - 1, 0, -1):
-            # for layer in range(1, self.n):
-            for layer in range(1, self.n):
-                arho_voz = self.p / (287.4 * output[dt_step][layer].TemperatureOfVozd)
-                aCp_voz = 10 ** 3 * (1.0005 + 1.1904 * 10 ** (-4) * (output[dt_step][layer].TemperatureOfVozd - 273))
-                avyaz_voz = 0.00001717 * (output[dt_step][layer].TemperatureOfVozd / 273) ** 0.683
-                avyaz_kin = avyaz_voz / arho_voz
-                aLya_voz = 0.0244 * (output[dt_step][layer].TemperatureOfVozd / 273) ** 0.82
-
-                aRe = self.v * self.d / avyaz_kin
-                if isinstance(aRe, complex):
-                    print(aRe, output[dt_step][layer].TemperatureOfVozd)
-
+            for layer in range(self.n - 1):
+                arho_voz = self.p / (287.4 * self.T0)
+                avyaz_voz = 0.00001717 * (self.T0 / 273) ** 0.683
+                aLya_voz = 0.0244 * ((self.T0 / 273) ** 0.82)
+                aCp_voz = 1000
+                aRe = arho_voz * self.v * self.d / avyaz_voz
                 if aRe < 1000:
                     aC = 0.56
                     an = 0.5
@@ -91,51 +74,168 @@ class TModel:
                 aPr = avyaz_voz * aCp_voz / aLya_voz
                 aNu = aC * aRe ** an * aPr ** 0.33
                 aAlf = aNu * aLya_voz / self.d
-                alpha = aAlf * (self.s_pov_gran * self.n_zer * self.m_sl * self.delta_t / (self.C_ads * 700 * aCp_voz))
-                c_a = self.C_ads * self.m_sl
-                c_v = aCp_voz * (self.G * arho_voz * self.delta_x / self.v)
 
-                # aPr = avyaz * aCp / aL
-                # aNu = aC * aRe ** an * aPr ** 0.33
-                # aAlf = aNu * aL / self.d
-                #
-                # alpha = aAlf * self.s_pov_gran * self.n_zer
-                # c_a = self.C_ads * self.m_sl
-                # # c_v = aCp * self.G * arho * self.delta_x / self.v
-                # c_v = aCp * self.G
-
-                #print(self.v * delta_t / self.delta_x * (output[dt_step][layer].TemperatureOfVozd
-                #                                                   - output[dt_step][layer - 1].TemperatureOfVozd))
-                # output[dt_step + 1][layer].TemperatureOfVozd = (output[dt_step][layer].TemperatureOfVozd
-                #                                                 - alpha * delta_t
-                #                                                 * ((output[dt_step][layer].TemperatureOfVozd
-                #                                                 - output[dt_step][layer].TemperatureOfAds) / c_v)
-                #                                                 - self.v * delta_t / self.delta_x #/ 13636.8
-                #                                                 * (output[dt_step][layer].TemperatureOfVozd
-                #                                                    - output[dt_step][layer - 1].TemperatureOfVozd))
-
-                output[dt_step + 1][layer].TemperatureOfVozd = (output[dt_step][layer].TemperatureOfVozd
-                                                                - alpha * self.C_ads
-                                                                * (output[dt_step][layer].TemperatureOfVozd
-                                                                    - output[dt_step][layer].TemperatureOfAds)
-                                                                - self.v * delta_t / self.delta_x  # / 13636.8
-                                                                * (output[dt_step][layer].TemperatureOfVozd
-                                                                   - output[dt_step][layer - 1].TemperatureOfVozd))
-
-                output[dt_step + 1][layer].TemperatureOfAds = (output[dt_step][layer].TemperatureOfAds
-                                                               + alpha
-                                                               * (output[dt_step][layer].TemperatureOfVozd
-                                                               - output[dt_step][layer].TemperatureOfAds))
+                alpha = aAlf * self.s_pov_gran * self.n_zer
 
 
+                output[dt_step][layer + 1].TemperatureOfVozd = output[dt_step][layer].TemperatureOfVozd - alpha \
+                                                           * (output[dt_step][layer].TemperatureOfVozd
+                                                              - output[dt_step][layer].TemperatureOfAds)\
+                                                               / (self.G * aCp_voz)
+
+                aQ = self.G * aCp_voz * (output[dt_step][layer].TemperatureOfVozd
+                                         - output[dt_step][layer + 1].TemperatureOfVozd) * delta_t
+
+                output[dt_step + 1][layer].TemperatureOfAds = aQ / (self.C_ads * self.m_sl) \
+                                                              + output[dt_step][layer].TemperatureOfAds
+
+                b = 0.5 * exp((k_ads) / (self.R_vozd * output[dt_step + 1][layer].TemperatureOfAds))
+                X = (A * b * (output[dt_step][layer].VlagosoderganieOfVozd)) \
+                    / (1 + b * (output[dt_step][layer].VlagosoderganieOfVozd))
+                aB_mass_pov = aAlf / aCp_voz
+                X_max_vlag_sloy = self.m_sl * X * 1000
+                k = X_max_vlag_sloy / output[dt_step][layer].VlagosoderganieOfVozd
+                d_ads = output[dt_step][layer].VlagosoderganieOfAds / k
+                output[dt_step][layer + 1].VlagosoderganieOfVozd = output[dt_step][layer].VlagosoderganieOfVozd - (
+                        (aB_mass_pov * (output[dt_step][layer].VlagosoderganieOfVozd - d_ads) * self.s_pov_gran * self.n_zer) / self.G)
+                output[dt_step + 1][layer].VlagosoderganieOfAds = output[dt_step][layer].VlagosoderganieOfAds + (
+                        output[dt_step][layer].VlagosoderganieOfVozd - output[dt_step][layer + 1].VlagosoderganieOfVozd)
+                if (output[dt_step + 1][layer].VlagosoderganieOfAds > X_max_vlag_sloy):
+                    output[dt_step][layer + 1].VlagosoderganieOfVozd = output[dt_step][layer + 1].VlagosoderganieOfVozd + \
+                                                                   (output[dt_step + 1][layer].VlagosoderganieOfAds-X_max_vlag_sloy)
+                    output[dt_step + 1][layer].VlagosoderganieOfAds = X_max_vlag_sloy
+
+                output[dt_step + 1][layer].TemperatureOfAds = (aQ + k_ads * (output[dt_step + 1][layer].VlagosoderganieOfAds - output[dt_step][layer].VlagosoderganieOfAds) + (
+                                                              (c_wod / 1000) * (output[dt_step][layer].TemperatureOfVozd - output[dt_step][layer].TemperatureOfAds)
+                                                              * (output[dt_step + 1][layer].VlagosoderganieOfAds
+                                                                 - output[dt_step][layer].VlagosoderganieOfAds))) / ((self.C_ads * self.m_sl)
+                                                            + (output[dt_step + 1][layer].VlagosoderganieOfAds * (c_wod / 1000))) + output[dt_step][layer].TemperatureOfAds
 
 
-        plot_data(output, layer=20, field='TemperatureOfVozd', title='layer=20_TemperatureOfVozd_ads_v2.png')
-        plot_data(output, layer=20, field='TemperatureOfAds', title='layer=20_TemperatureOfAds_ads_v2.png')
+        # # Desorption
+        #
+        # # start conditions
+        # for layer in range(self.n):
+        #     output[0][layer].TempOfAdsReg = self.t1
+        #     output[0][layer].TempOfVozdReg = self.Tvoz_reg
+        #     output[0][layer].VlagOfAdsReg = output[int(total_time / delta_t - 1)][self.n - layer].VlagosoderganieOfAds
+        #     output[0][layer].VlagOfVozdReg = self.C_reg
+        #
+        # # boundary conditions
+        # for dt_step in range(int(total_time / delta_t)):
+        #     output[dt_step][0].TempOfVozdReg = self.Tvoz_reg
+        #     output[dt_step][0].VlagOfVozdReg = output[int(total_time / delta_t - 1)][self.n - 1].VlagosoderganieOfVozd
+        #
+        #
+        # for dt_step in range(1, int(total_time / delta_t)):
+        #     for layer in range(1, self.n):
+        #         arho_voz = self.p / (287.4 * output[dt_step - 1][layer - 1].TempOfVozdReg)
+        #         avyaz_voz = 0.00001717 * (output[dt_step - 1][layer - 1].TempOfVozdReg / 273) ** 0.683
+        #         aLya_voz = 0.0244 * (output[dt_step - 1][layer - 1].TempOfVozdReg / 273) ** 0.82
+        #         aRe = arho_voz * self.v_reg * self.d / avyaz_voz
+        #         aCp_voz = 1000
+        #         if aRe < 1000:
+        #             aC = 0.56
+        #             an = 0.5
+        #         else:
+        #             aC = 0.28
+        #             an = 0.6
+        #         aPr = avyaz_voz * aCp_voz / aLya_voz
+        #         aNu = aC * aRe ** an * aPr ** 0.33
+        #         aAlf = aNu * aLya_voz / self.d
+        #
+        #
+        #         output[dt_step - 1][layer].TempOfVozdReg = output[dt_step - 1][layer - 1].TempOfVozdReg - ((aAlf
+        #                     * (output[dt_step - 1][layer - 1].TempOfVozdReg - output[dt_step - 1][layer - 1].TempOfAdsReg)
+        #                     * self.s_pov_gran * self.n_zer) / (self.G_reg * aCp_voz))
+        #         aQ = self.G_reg * aCp_voz * (output[dt_step - 1][layer - 1].TempOfVozdReg - output[dt_step - 1][layer].TempOfVozdReg) \
+        #                     * delta_t
+        #         output[dt_step][layer - 1].TempOfAdsReg = aQ / (self.C_ads * self.m_sl) + output[dt_step - 1][layer - 1].TempOfAdsReg
+        #         aB_mass_pov = aAlf / aCp_voz
+        #         Max_vlag_vozd = 0.00021 * (output[dt_step - 1][layer - 1].TempOfVozdReg ** 3) - 0.016 \
+        #                     * (output[dt_step - 1][layer - 1].TempOfVozdReg ** 2) + 0.176 * (output[dt_step - 1][layer - 1].TempOfVozdReg) + 0.0054
+        #
+        #         output[dt_step - 1][layer].VlagOfVozdReg = output[dt_step - 1][layer - 1].VlagOfVozdReg - ((aB_mass_pov * (
+        #                 output[dt_step - 1][layer - 1].VlagOfVozdReg - output[dt_step - 1][layer - 1].VlagOfAdsReg) * self.s_pov_gran * self.n_zer) / self.G_reg)
+        #         output[dt_step][layer - 1].VlagOfVozdReg = output[dt_step - 1][layer - 1].VlagOfAdsReg + (
+        #                 output[dt_step - 1][layer - 1].VlagOfVozdReg - output[dt_step - 1][layer].VlagOfVozdReg)
+        #
+        #         if (output[dt_step - 1][layer].VlagOfVozdReg > Max_vlag_vozd):
+        #             output[dt_step][layer - 1].VlagOfAdsReg = output[dt_step][layer - 1].VlagOfAdsReg + (output[dt_step - 1][layer].VlagOfVozdReg
+        #                                                                                   - Max_vlag_vozd)
+        #             output[dt_step - 1][layer].VlagOfVozdReg = Max_vlag_vozd
+        #
+        #
+        #         output[dt_step][layer - 1].TempOfAdsReg = (aQ + ((k_ads / 1000) * (output[dt_step][layer - 1].VlagOfAdsReg
+        #                 - output[dt_step - 1][layer - 1].VlagOfAdsReg)) + ((c_wod / 1000) * (output[dt_step - 1][layer - 1].TempOfVozdReg
+        #                 - output[dt_step - 1][layer - 1].TempOfAdsReg) * (output[dt_step][layer - 1].VlagOfAdsReg - output[dt_step - 1][layer - 1].VlagOfAdsReg))) \
+        #                 / ((self.C_ads * self.m_sl) + (output[dt_step][layer - 1].VlagOfAdsReg * (c_wod / 1000))) + output[dt_step - 1][layer - 1].TempOfAdsReg
+
+
+
+        plot_data(output, layer=999, field='TemperatureOfVozd', title='layer=999_TemperatureOfVozd_ads_v2.png')
+        plot_data(output, layer=999, field='TemperatureOfAds', title='layer=999_TemperatureOfAds_ads_v2.png')
+
+        plot_data(output, layer=0, field='TemperatureOfVozd', title='layer=0_TemperatureOfVozd_ads_v2.png')
+        plot_data(output, layer=0, field='TemperatureOfAds', title='layer=0_TemperatureOfAds_ads_v2.png')
+
+        plot_data(output, layer=1, field='TemperatureOfVozd', title='layer=1_TemperatureOfVozd_ads_v2.png')
+        plot_data(output, layer=1, field='TemperatureOfAds', title='layer=1_TemperatureOfAds_ads_v2.png')
+
+        plot_data(output, layer=100, field='TemperatureOfVozd', title='layer=100_TemperatureOfVozd_ads_v2.png')
+        plot_data(output, layer=100, field='TemperatureOfAds', title='layer=100_TemperatureOfAds_ads_v2.png')
+
+
+
 
         # Plot layers
-        plot_all_layers(output, n_layers=self.n, field='TemperatureOfVozd', dt_list=[30, 200, 1000],
-                        title='dt=[30, 200, 1000]_TemperatureOfVozd_ads_v2.png')
-        plot_all_layers(output, n_layers=self.n, field='TemperatureOfAds', dt_list=[30, 200, 1000],
-                        title='dt=[30, 200, 1000]_TemperatureOfAds_ads_v2.png')
-        pass
+        plot_all_layers(output, n_layers=self.n, field='TemperatureOfVozd', dt_list=[30, 120, 300, 3600, 7200, 10800, 14399],
+                        title='KOSTYA_dt=[30с, 2 мин, 5 мин, 1 час, 2 часа, 3 часаб 4 ч]_TemperatureOfVozd_ads_v2.png')
+        plot_all_layers(output, n_layers=self.n, field='TemperatureOfAds', dt_list=[30, 120, 300, 3600, 7200, 10800, 14399],
+                        title='KOSTYA_dt=[30с, 2 мин, 5 мин, 1 час, 2 часа, 3 часа, 4 ч]_TemperatureOfAds_ads_v2.png')
+        #
+        #
+        #
+        #
+        # # plot_data(output, layer=20, field='TempOfVozdReg', title='layer=20_TempOfVozd_Reg.png')
+        # # plot_data(output, layer=20, field='TempOfAdsReg', title='layer=20_TempOfAds_Reg.png')
+        #
+        # # Plot layers
+        # plot_all_layers(output, n_layers=self.n, field='TempOfVozdReg', dt_list=[30, 1200, 2400, 3600, 5400],
+        #                 title='dt=[30с, 20 мин, 40 мин, 1 ч, 1,5 ч]_TempOfVozd_Reg.png')
+        # plot_all_layers(output, n_layers=self.n, field='TempOfAdsReg', dt_list=[30, 60, 180, 300],
+        #                 title='dt=[30с, 2 мин, 3 мин, 5 мин]_TempOfAds_Reg.png')
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        plot_data(output, layer=999, field='VlagosoderganieOfVozd', title='layer=999_VlagosoderganieOfVozd_ads.png')
+        plot_data(output, layer=999, field='VlagosoderganieOfAds', title='layer=999_VlagosoderganieOfAds_ads.png')
+
+
+        plot_data(output, layer=0, field='VlagosoderganieOfVozd', title='layer=0_VlagosoderganieOfVozd_ads.png')
+        plot_data(output, layer=0, field='VlagosoderganieOfAds', title='layer=0_VlagosoderganieOfAds_ads.png')
+
+        # Plot layers
+        plot_all_layers(output, n_layers=self.n, field='VlagosoderganieOfVozd', dt_list=[30, 120, 300, 3600, 7200, 10800, 14399],
+                        title='dt=[30с, 2 мин, 5 мин, 1 час, 2 часа, 3 часаб 4 ч]_VlagosoderganieOfVozd_ads.png')
+        plot_all_layers(output, n_layers=self.n, field='VlagosoderganieOfAds', dt_list=[30, 120, 300, 3600, 7200, 10800, 14399],
+                        title='dt=[30с, 2 мин, 5 мин, 1 час, 2 часа, 3 часа, 4 ч]_VlagosoderganieOfAds_ads.png')
+        #
+        #
+        # # plot_data(output, layer=20, field='VlagOfVozdReg', title='layer=20_VlagOfVozdReg_Reg.png')
+        # # plot_data(output, layer=20, field='VlagOfAdsReg', title='layer=20_VlagOfAdsReg_Reg.png')
+        #
+        # # Plot layers
+        # plot_all_layers(output, n_layers=self.n, field='VlagOfVozdReg', dt_list=[30, 3600, 5400, 10800, 12600],
+        #                 title='dt=[30с, 1 ч, 1.5 ч, 3 ч, 3.5 ч]_VlagOfVozdReg_Reg.png')
+        # plot_all_layers(output, n_layers=self.n, field='VlagOfAdsReg', dt_list=[30, 900, 3600, 5400, 9000, 10800],
+        #                 title='dt=[30с, 15 мин, 1 ч, 1.5 ч, 2.5 ч, 3 ч]_VlagOfAdsReg_Reg.png')
+        #
+        #
+        #
+        # pass

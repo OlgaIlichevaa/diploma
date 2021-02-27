@@ -2,33 +2,33 @@ from math import pi, ceil
 
 
 # todo: Add interface and initialize constants
-path = "C:\\Users\\olgai\\PycharmProjects\\diploma\\graph\\"
+path = "C:\\Users\\olgai\\PycharmProjects\\diploma\\graph_v2\\"
 # /home/darklord/PycharmProjects/diploma/graph/
 # adsorber
 h = 2
 d_sloy = 1
 T0 = 308
 ads_begin_vlaga = 0.32
-delta_x = 0.004
+delta_x = 0.002
 delta_t = 1  #100
 
 # adsorbent
-d = 0.004
-p_nasypnoe = 700
-por = 0.682
+d = 0.002
+p_nasypnoe = 600 #700
+por = 0.59
 C_ads = 920
 Lya = 0.0244
-rho_ads = 2200
+rho_ads = 1200
 
 # gas
 t1 = 308
-G = 1.2
+G = 10
 vozd_begin_vlaga = 3.5
-p = 100000
+p = 1000000
 
 
 # regeneration
-G_reg = 1.2
+G_reg = 2.4
 C_reg = 3.5
 A_reg = 3.5
 Tvoz_reg = 423

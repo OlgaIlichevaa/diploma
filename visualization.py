@@ -30,3 +30,4 @@ def plot_all_layers(matr, n_layers, field, dt_list, title='all_layers.png'):
         plt.savefig(path + title)
     except:
         print('Please change path variable in constants to existing path')
+
