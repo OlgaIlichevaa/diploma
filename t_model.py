@@ -201,15 +201,15 @@ class TModel:
         ################################################################################################################
         # ADSORBTION
         # Plot layers
-        plot_all_layers(output, n_layers=self.n, field='TemperatureOfVozd', dt_list=[30, 120, 300, 3600, 7200, 10800, 14398],
+        plot_all_layers(output, n_layers=self.n, field='TemperatureOfVozd', dt_list=[30, 120, 300, 3600, 7200, 10800, 14398, 20000, 25000, 35000, 35998],
                         title='KOSTYA_dt=[30с, 2 мин, 5 мин, 1 час, 2 часа, 3 часаб 4 ч]_TemperatureOfVozd_ads_v2.png')
-        plot_all_layers(output, n_layers=self.n, field='TemperatureOfAds', dt_list=[30, 120, 300, 3600, 7200, 10800, 14398],
+        plot_all_layers(output, n_layers=self.n, field='TemperatureOfAds', dt_list=[30, 120, 300, 3600, 7200, 10800, 14398, 20000, 25000, 35000, 35998],
                         title='KOSTYA_dt=[30с, 2 мин, 5 мин, 1 час, 2 часа, 3 часа, 4 ч]_TemperatureOfAds_ads_v2.png')
 
         # Plot layers
-        plot_all_layers(output, n_layers=self.n, field='VlagosoderganieOfVozd', dt_list=[300, 3600, 7200, 10800, 12600, 14390, 14398],
+        plot_all_layers(output, n_layers=self.n, field='VlagosoderganieOfVozd', dt_list=[30, 120, 300, 3600, 7200, 10800, 14398, 20000, 25000, 35000, 35998],
                          title='KOSTYA_dt=[5 мин, 1 час, 2 часа, 3 часа, 3.5 ч, 4 ч]_VlagosoderganieOfVozd_ads.png')
-        plot_all_layers(output, n_layers=self.n, field='VlagosoderganieOfAds', dt_list=[300, 3600, 7200, 10800, 12600, 14390, 14398],
+        plot_all_layers(output, n_layers=self.n, field='VlagosoderganieOfAds', dt_list=[30, 120, 300, 3600, 7200, 10800, 14398, 20000, 25000, 35000, 35998],
                         title='KOSTYA_dt=[5 мин, 1 час, 2 часа, 3 часа, 3.5 ч, 4 ч]_VlagosoderganieOfAds_ads.png')
 
         ################################################################################################################
@@ -221,15 +221,15 @@ class TModel:
         # # plot_data(output, layer=20, field='TempOfAdsReg', title='layer=20_TempOfAds_Reg.png')
         #
         # Plot layers
-        plot_all_layers_no_zero_layer(output, n_layers=self.n, field='TempOfVozdReg', dt_list=[300, 600, 900, 1800, 3600, 7200, 10800, 12600, 14390, 14398],
-                        title='KOSTYA_dt=[5 мин, 10 мин, 15 мин, 1 час, 1.5 часа, 2 часа, 3 часа, 3.5 ч, 4 ч]_TempOfVozd_Reg.png')
-        plot_all_layers_no_zero_layer(output, n_layers=self.n, field='TempOfAdsReg', dt_list=[300, 600, 900, 1800, 3600, 7200, 10800, 12600, 14390, 14398],
-                        title='KOSTYA_dt=[5 мин, 10 мин, 15 мин, 1 час, 1.5 часа, 2 часа, 3 часа, 3.5 ч, 4 ч]_TempOfAds_Reg.png')
+        plot_all_layers_no_zero_layer(output, n_layers=self.n, field='TempOfVozdReg', dt_list=[30, 120, 300, 400, 600, 800, 900],
+                        title='KOSTYA_dt=[1]_TempOfVozd_Reg.png')
+        plot_all_layers_no_zero_layer(output, n_layers=self.n, field='TempOfAdsReg', dt_list=[30, 120, 300, 400, 600, 800, 900],
+                        title='KOSTYA_dt=[2]_TempOfAds_Reg.png')
 
         # Plot layers
-        plot_all_layers_no_zero_layer(output, n_layers=self.n, field='VlagOfVozdReg', dt_list=[300, 600, 900, 1800, 3600, 7200, 10800, 12600, 14390, 14398],
-                        title='KOSTYA_dt=[5 мин, 10 мин, 15 мин, 1 час, 1.5 часа, 2 часа, 3 часа, 3.5 ч, 4 ч]_VlagOfVozdReg_Reg.png')
-        plot_all_layers_no_zero_layer(output, n_layers=self.n, field='VlagOfAdsReg', dt_list=[300, 600, 900, 1800, 3600, 7200, 10800, 12600, 14390, 14398],
-                        title='KOSTYA_dt=[5 мин, 10 мин, 15 мин, 1 час, 1.5 часа, 2 часа, 3 часа, 3.5 ч, 4 ч]_VlagOfAdsReg_Reg.png')
+        plot_all_layers_no_zero_layer(output, n_layers=self.n, field='VlagOfVozdReg', dt_list=[30, 120, 300, 400, 600, 800, 900],
+                        title='KOSTYA_dt=[3]_VlagOfVozdReg_Reg.png')
+        plot_all_layers_no_zero_layer(output, n_layers=self.n, field='VlagOfAdsReg', dt_list=[30, 120, 300, 400, 600, 800, 900],
+                        title='KOSTYA_dt=[4]_VlagOfAdsReg_Reg.png')
 
         pass
